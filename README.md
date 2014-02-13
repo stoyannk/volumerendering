@@ -1,6 +1,8 @@
 *Volume rendering sample* - this is a sample for the **Voxels** library that shows realtime volume rendering of large meshes
 The **Voxels** library is available for free at http://github.com/stoyannk/voxels
 
+Official *Voxels* website: http://stoyannk.wordpress.com/voxels-library/
+
 ## Features
  - Voxel grid loading saving
  - Realtime scalable polygonization
