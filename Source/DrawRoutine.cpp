@@ -298,10 +298,10 @@ bool DrawRoutine::UpdateGrid() {
 			{
 				if (outBlock.Id == surface->GetBlockForLevel(lodLevel, bl)->GetId())
 				{
-					return true;
+					return false;
 				}
 			}
-			return false;
+			return true;
 		});
 
 		// delete the old blocks
