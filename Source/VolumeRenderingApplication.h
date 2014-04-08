@@ -8,10 +8,10 @@
 #include <Dx11/AppGraphics/DxGraphicsApplication.h>
 #include "../Voxels/include/Grid.h"
 
-#ifdef _DEBUG
-	#define COUNT_MEMORY 1
+#if defined(_DEBUG) || defined(TRACKING_BUILD)
+	#define TRACK_MEMORY 1
 #else
-	#define COUNT_MEMORY 0
+	#define TRACK_MEMORY 0
 #endif
 
 class Scene;

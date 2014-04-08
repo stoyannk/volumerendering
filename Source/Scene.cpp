@@ -120,6 +120,8 @@ bool Scene::SaveVoxelGrid(const std::string& filename)
 
 void Scene::RecalculateGrid(const Voxels::float3pair* modified)
 {
+	SLLOG(Sev_Info, Fac_Rendering, "Memory used for grid blocks: ", m_Grid->GetGridBlocksMemorySize());
+	
 	Voxels::Modification* modification = Voxels::Modification::Create();
 	if(modified) {
 		modification->Map = m_PolygonSurface;
@@ -132,6 +134,8 @@ void Scene::RecalculateGrid(const Voxels::float3pair* modified)
 	m_PolygonSurface = std::move(decltype(m_PolygonSurface)(m_Polygonizer->Execute(*m_Grid, &m_Materials, modified ? modification : nullptr)));
 	
 	modification->Destroy();
+
+	SLLOG(Sev_Info, Fac_Rendering, "Material cache size: ", m_PolygonSurface->GetCacheSizeBytes());
 
 	// Print stat data
 	unsigned totalVertices = 0;
@@ -165,7 +169,7 @@ void Scene::RecalculateGrid(const Voxels::float3pair* modified)
 	{
 		SLOG(Sev_Debug, Fac_Rendering, "Cells with Case[", i, "] ", stats->PerCaseCellsCount[i]);
 	}
-
+	
 	// Rebuild the octree
 	m_LodOctree.reset(new Voxels::VoxelLodOctree());
 	if(!m_LodOctree->Build(*m_PolygonSurface)) {
