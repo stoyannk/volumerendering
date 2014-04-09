@@ -135,6 +135,7 @@ void Scene::RecalculateGrid(const Voxels::float3pair* modified)
 	
 	modification->Destroy();
 
+	SLLOG(Sev_Info, Fac_Rendering, "Polygon data size: ", m_PolygonSurface->GetPolygonDataSizeBytes());
 	SLLOG(Sev_Info, Fac_Rendering, "Material cache size: ", m_PolygonSurface->GetCacheSizeBytes());
 
 	// Print stat data
@@ -256,14 +257,20 @@ const MaterialTable& Scene::GetMaterials() const {
 	return m_Materials;
 }
 
+void Scene::DestroySurface()
+{
+	if (m_PolygonSurface)
+	{
+		m_PolygonSurface->Destroy();
+		m_PolygonSurface = nullptr;
+	}
+}
+
 Scene::~Scene()
 {
 	if (m_Grid)
 	{
 		m_Grid->Destroy();
 	}
-	if (m_PolygonSurface)
-	{
-		m_PolygonSurface->Destroy();
-	}
+	DestroySurface();
 }

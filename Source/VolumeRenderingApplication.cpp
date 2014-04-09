@@ -440,6 +440,9 @@ void VolumeRenderingApplication::KeyDown(unsigned int key)
 		SLLOG(Sev_Info, Fac_Rendering, "Maximum memory use: ", AllocatorImpl::GetMaxMemoryUse());
 		SLLOG(Sev_Info, Fac_Rendering, "Current memory use: ", AllocatorImpl::GetCurrentMemoryUse());
 		break;
+	case VK_F11:
+		m_Scene->DestroySurface();
+		break;
 
 	default:
 		break;
