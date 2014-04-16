@@ -154,11 +154,11 @@ void Scene::RecalculateGrid(const Voxels::float3pair* modified)
 			unsigned temp = 0;
 			auto block = m_PolygonSurface->GetBlockForLevel(level, blockId);
 			block->GetVertices(&temp);
-			SLOG(Sev_Debug, Fac_Rendering, "Vertices produced ", temp);
+			SLOG(Sev_Trace, Fac_Rendering, "Vertices produced ", temp);
 			totalVertices += temp;
 			block->GetIndices(&temp);
 			totalIndices += temp;
-			SLOG(Sev_Debug, Fac_Rendering, "Indices produced ", temp);
+			SLOG(Sev_Trace, Fac_Rendering, "Indices produced ", temp);
 		}
 	}
 	SLOG(Sev_Debug, Fac_Rendering, "Total vertices produced: ", totalVertices);
@@ -168,7 +168,7 @@ void Scene::RecalculateGrid(const Voxels::float3pair* modified)
 	SLOG(Sev_Debug, Fac_Rendering, "NonTrivial cells ", stats->NonTrivialCells);
 	for (auto i = 0u; i < Voxels::PolygonizationStatistics::CASES_COUNT; ++i)
 	{
-		SLOG(Sev_Debug, Fac_Rendering, "Cells with Case[", i, "] ", stats->PerCaseCellsCount[i]);
+		SLOG(Sev_Trace, Fac_Rendering, "Cells with Case[", i, "] ", stats->PerCaseCellsCount[i]);
 	}
 	
 	// Rebuild the octree
