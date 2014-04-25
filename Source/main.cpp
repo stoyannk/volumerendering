@@ -48,6 +48,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Logging::Logger::Initialize();
 	Logging::Logger::Get().AddTarget(new std::ofstream("VolumeRenderingApplication_App.log"));
+	Logging::Logger::Get().SetMinimalLogSeverity(Logging::Sev_Debug);
 
 	auto app = std::unique_ptr<VolumeRenderingApplication>(new VolumeRenderingApplication(hInstance));
 
@@ -57,8 +58,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 
 	app.reset();
-	Logging::Logger::Deinitialize();
 
+	Logging::Logger::Deinitialize();
+	
 	#ifdef PROFI_ENABLE
 	// dump the perf
 	profi::IReport* report(profi::GetReportJSON());
@@ -69,6 +71,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	report->Release();
 	profi::Deinitialize();
 	#endif
+
+#ifdef _CRTDBG_MAP_ALLOC
+	_CrtDumpMemoryLeaks();
+#endif
 
 	return 0;
 }

@@ -5,6 +5,14 @@
 // website for more information
 #pragma once
 
+#define CHECK_MEMORY 0
+
+#if CHECK_MEMORY
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#endif
+
 #include <Utilities/CoreIncludes.h>
 
 #include <memory.h>

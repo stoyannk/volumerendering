@@ -128,6 +128,13 @@ void Scene::RecalculateGrid(const Voxels::float3pair* modified)
 		modification->MinCornerModified = modified->first;
 		modification->MaxCornerModified = modified->second;
 	}
+	else {
+		if (m_PolygonSurface)
+		{
+			m_PolygonSurface->Destroy();
+			m_PolygonSurface = nullptr;
+		}
+	}
 
 	SLOG(Sev_Debug, Fac_Rendering, "Recalculating grid...");
 
@@ -170,7 +177,7 @@ void Scene::RecalculateGrid(const Voxels::float3pair* modified)
 	{
 		SLOG(Sev_Trace, Fac_Rendering, "Cells with Case[", i, "] ", stats->PerCaseCellsCount[i]);
 	}
-	
+
 	// Rebuild the octree
 	m_LodOctree.reset(new Voxels::VoxelLodOctree());
 	if(!m_LodOctree->Build(*m_PolygonSurface)) {

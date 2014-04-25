@@ -437,8 +437,34 @@ void VolumeRenderingApplication::KeyDown(unsigned int key)
 		break;
 
 	case VK_F9:
-		SLLOG(Sev_Info, Fac_Rendering, "Maximum memory use: ", AllocatorImpl::GetMaxMemoryUse());
-		SLLOG(Sev_Info, Fac_Rendering, "Current memory use: ", AllocatorImpl::GetCurrentMemoryUse());
+		{
+			SLLOG(Sev_Info, Fac_Rendering, "Maximum memory use: ", AllocatorImpl::GetMaxMemoryUse());
+			SLLOG(Sev_Info, Fac_Rendering, "Current memory use: ", AllocatorImpl::GetCurrentMemoryUse());
+
+			ID3D11Debug* d3dDebug = nullptr;
+			m_Renderer->GetDevice()->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3dDebug));
+			if (d3dDebug)
+			{
+				d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+				d3dDebug->Release();
+			}
+
+			#ifdef _CRTDBG_MAP_ALLOC
+			static std::unique_ptr<_CrtMemState> lastState;
+			std::unique_ptr<_CrtMemState> currentState(new _CrtMemState);
+			_CrtMemCheckpoint(currentState.get());
+			OutputDebugString("Current memory snapshot: \n");
+			_CrtMemDumpStatistics(currentState.get());
+			if (lastState)
+			{
+				std::unique_ptr<_CrtMemState> diff(new _CrtMemState);
+				_CrtMemDifference(diff.get(), lastState.get(), currentState.get());
+				OutputDebugString("Memory diff snapshot: \n");
+				_CrtMemDumpStatistics(diff.get());
+			}
+			std::swap(lastState, currentState);
+			#endif
+		}
 		break;
 	case VK_F11:
 		m_Scene->DestroySurface();
@@ -535,6 +561,7 @@ void VolumeRenderingApplication::ModifyGrid(int mouseX, int mouseY)
 void VolumeRenderingApplication::RecalculateGrid(const Voxels::float3pair* modified)
 {
 	m_Scene->RecalculateGrid(modified);
+
 	auto result = modified ? m_DrawRoutine->UpdateGrid() : m_DrawRoutine->ReloadGrid();
 
 	if(!result)
