@@ -33,7 +33,7 @@ void VoxelProc::GetSurface(float xStart, float xEnd, float xStep,
 	unsigned char* blend)
 {
 	auto id = 0;
-	for (auto z = zStart; z < zEnd; z += zStep)
+	/*for (auto z = zStart; z < zEnd; z += zStep)
 	{
 		for (auto y = yStart; y < yEnd; y += yStep)
 		{
@@ -45,6 +45,56 @@ void VoxelProc::GetSurface(float xStart, float xEnd, float xStep,
 					x * m_Params.DimensionFactor,
 					y * m_Params.DimensionFactor,
 					z * m_Params.DimensionFactor)) * m_Params.ScaleFactor;
+
+				output[id] = density;
+				if (materialid != nullptr)
+				{
+					materialid[id] = 0;
+					blend[id] = 0;
+				}
+				++id;
+			}
+		}
+	}*/
+
+	/*for (auto z = zStart/2; z < zEnd/2; z += zStep/2)
+	{
+		for (auto y = yStart/2; y < yEnd/2; y += yStep/2)
+		{
+			for (auto x = xStart/2; x < xEnd/2; x += xStep/2)
+			{
+				XMVECTOR point = XMVectorSet(x, y, z, 1);
+				auto density = XMVectorGetX(XMPlaneDot(m_Plane, point));
+				density += glm::perlin(glm::vec3(
+					x * m_Params.DimensionFactor,
+					y * m_Params.DimensionFactor,
+					z * m_Params.DimensionFactor)) * m_Params.ScaleFactor * 2;
+
+				output[id] = density;
+				if (materialid != nullptr)
+				{
+					materialid[id] = 0;
+					blend[id] = 0;
+				}
+				++id;
+			}
+		}
+	}*/
+
+	static const int DFACT = 2;
+
+	for (auto z = zStart / DFACT; z < zEnd / DFACT; z += zStep / DFACT)
+	{
+		for (auto y = yStart / DFACT; y < yEnd / DFACT; y += yStep / DFACT)
+		{
+			for (auto x = xStart / DFACT; x < xEnd / DFACT; x += xStep / DFACT)
+			{
+				XMVECTOR point = XMVectorSet(x, y, z, 1);
+				auto density = XMVectorGetX(XMPlaneDot(m_Plane, point));
+				density += glm::perlin(glm::vec3(
+					x * m_Params.DimensionFactor,
+					y * m_Params.DimensionFactor,
+					z * m_Params.DimensionFactor)) * m_Params.ScaleFactor * 4;
 
 				output[id] = density;
 				if (materialid != nullptr)

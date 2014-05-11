@@ -40,6 +40,7 @@ public:
 	const MaterialTable& GetMaterials() const;
 
 	const Voxels::PolygonSurface* GetPolygonSurface() const { return m_PolygonSurface; }
+	void DestroySurface();
 	SceneGridType* GetVoxelGrid() const { return m_Grid; }
 
 	bool Intersect(DirectX::FXMVECTOR start,

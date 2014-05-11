@@ -14,102 +14,102 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="VolumeRenderingApplication.h">
+    <ClInclude Include="Source\ClearRenderingRoutine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ClearRenderingRoutine.h">
+    <ClInclude Include="Source\ConstBufferTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PresentRoutine.h">
+    <ClInclude Include="Source\DrawRoutine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DrawRoutine.h">
+    <ClInclude Include="Source\HeightMapLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ConstBufferTypes.h">
+    <ClInclude Include="Source\lodepng.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
+    <ClInclude Include="Source\MaterialTable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VertexTypes.h">
+    <ClInclude Include="Source\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HeightMapLoader.h">
+    <ClInclude Include="Source\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lodepng.h">
+    <ClInclude Include="Source\VertexTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Voxel\VoxelLodOctree.h">
+    <ClInclude Include="Source\VolumeRenderingApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="Source\PresentRoutine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialTable.h">
+    <ClInclude Include="Source\VoxelBall.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VoxelBall.h">
+    <ClInclude Include="Source\VoxelBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VoxelPlane.h">
+    <ClInclude Include="Source\VoxelPlane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VoxelBox.h">
+    <ClInclude Include="Source\VoxelProc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VoxelProc.h">
+    <ClInclude Include="Source\Voxel\VoxelLodOctree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="VolumeRenderingApplication.cpp">
+    <ClCompile Include="Source\ClearRenderingRoutine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Source\DrawRoutine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ClearRenderingRoutine.cpp">
+    <ClCompile Include="Source\HeightmapLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PresentRoutine.cpp">
+    <ClCompile Include="Source\lodepng.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DrawRoutine.cpp">
+    <ClCompile Include="Source\MaterialTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
+    <ClCompile Include="Source\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VertexTypes.cpp">
+    <ClCompile Include="Source\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HeightmapLoader.cpp">
+    <ClCompile Include="Source\VertexTypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lodepng.cpp">
+    <ClCompile Include="Source\VolumeRenderingApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Voxel\VoxelLodOctree.cpp">
+    <ClCompile Include="Source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="Source\PresentRoutine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MaterialTable.cpp">
+    <ClCompile Include="Source\VoxelBall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VoxelBall.cpp">
+    <ClCompile Include="Source\VoxelBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VoxelBox.cpp">
+    <ClCompile Include="Source\VoxelPlane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VoxelPlane.cpp">
+    <ClCompile Include="Source\VoxelProc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VoxelProc.cpp">
+    <ClCompile Include="Source\Voxel\VoxelLodOctree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

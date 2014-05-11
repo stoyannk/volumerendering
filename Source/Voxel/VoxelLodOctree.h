@@ -7,8 +7,6 @@
 
 #include "../../Voxels/include/Polygonizer.h"
 
-class AllocatorBase;
-
 namespace Voxels
 {
 
@@ -49,8 +47,6 @@ private:
 	bool PruneNode(NodePtr& node);
 	void CheckForNeighbour(const NodePtr& lowResNode, const NodePtr& highResNode, VisibleBlock& output);
 	static bool IsCubeVisible(const DirectX::XMFLOAT4 frustumPlanes[6], const DirectX::XMFLOAT3& cubeMin, const DirectX::XMFLOAT3& cubeMax);
-
-	std::shared_ptr<AllocatorBase> m_Allocator;
 
 	NodePtr m_Root;
 

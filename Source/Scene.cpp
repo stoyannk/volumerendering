@@ -120,11 +120,20 @@ bool Scene::SaveVoxelGrid(const std::string& filename)
 
 void Scene::RecalculateGrid(const Voxels::float3pair* modified)
 {
+	SLLOG(Sev_Info, Fac_Rendering, "Memory used for grid blocks: ", m_Grid->GetGridBlocksMemorySize());
+	
 	Voxels::Modification* modification = Voxels::Modification::Create();
 	if(modified) {
 		modification->Map = m_PolygonSurface;
 		modification->MinCornerModified = modified->first;
 		modification->MaxCornerModified = modified->second;
+	}
+	else {
+		if (m_PolygonSurface)
+		{
+			m_PolygonSurface->Destroy();
+			m_PolygonSurface = nullptr;
+		}
 	}
 
 	SLOG(Sev_Debug, Fac_Rendering, "Recalculating grid...");
@@ -132,6 +141,9 @@ void Scene::RecalculateGrid(const Voxels::float3pair* modified)
 	m_PolygonSurface = std::move(decltype(m_PolygonSurface)(m_Polygonizer->Execute(*m_Grid, &m_Materials, modified ? modification : nullptr)));
 	
 	modification->Destroy();
+
+	SLLOG(Sev_Info, Fac_Rendering, "Polygon data size: ", m_PolygonSurface->GetPolygonDataSizeBytes());
+	SLLOG(Sev_Info, Fac_Rendering, "Material cache size: ", m_PolygonSurface->GetCacheSizeBytes());
 
 	// Print stat data
 	unsigned totalVertices = 0;
@@ -149,11 +161,11 @@ void Scene::RecalculateGrid(const Voxels::float3pair* modified)
 			unsigned temp = 0;
 			auto block = m_PolygonSurface->GetBlockForLevel(level, blockId);
 			block->GetVertices(&temp);
-			SLOG(Sev_Debug, Fac_Rendering, "Vertices produced ", temp);
+			SLOG(Sev_Trace, Fac_Rendering, "Vertices produced ", temp);
 			totalVertices += temp;
 			block->GetIndices(&temp);
 			totalIndices += temp;
-			SLOG(Sev_Debug, Fac_Rendering, "Indices produced ", temp);
+			SLOG(Sev_Trace, Fac_Rendering, "Indices produced ", temp);
 		}
 	}
 	SLOG(Sev_Debug, Fac_Rendering, "Total vertices produced: ", totalVertices);
@@ -163,7 +175,7 @@ void Scene::RecalculateGrid(const Voxels::float3pair* modified)
 	SLOG(Sev_Debug, Fac_Rendering, "NonTrivial cells ", stats->NonTrivialCells);
 	for (auto i = 0u; i < Voxels::PolygonizationStatistics::CASES_COUNT; ++i)
 	{
-		SLOG(Sev_Debug, Fac_Rendering, "Cells with Case[", i, "] ", stats->PerCaseCellsCount[i]);
+		SLOG(Sev_Trace, Fac_Rendering, "Cells with Case[", i, "] ", stats->PerCaseCellsCount[i]);
 	}
 
 	// Rebuild the octree
@@ -252,14 +264,20 @@ const MaterialTable& Scene::GetMaterials() const {
 	return m_Materials;
 }
 
+void Scene::DestroySurface()
+{
+	if (m_PolygonSurface)
+	{
+		m_PolygonSurface->Destroy();
+		m_PolygonSurface = nullptr;
+	}
+}
+
 Scene::~Scene()
 {
 	if (m_Grid)
 	{
 		m_Grid->Destroy();
 	}
-	if (m_PolygonSurface)
-	{
-		m_PolygonSurface->Destroy();
-	}
+	DestroySurface();
 }

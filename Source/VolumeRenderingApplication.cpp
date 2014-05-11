@@ -16,6 +16,10 @@
 
 #include <boost/program_options.hpp>
 
+#if TRACK_MEMORY
+#include <mutex>
+#endif
+
 using namespace DirectX;
 
 namespace po = boost::program_options;
@@ -59,12 +63,30 @@ public:
 	static void* AllocateAligned(size_t size, size_t alignment);
 	static void DeallocateAligned(void* ptr);
 	static void ReportMemory();
+
+	static size_t GetCurrentMemoryUse()
+	{
+#if TRACK_MEMORY
+		return CurrentUsedMemory;
+#else
+		return 0;
+#endif
+	}
+	static size_t GetMaxMemoryUse()
+	{
+#if TRACK_MEMORY
+		return MaxUsedMemory;
+#else
+		return 0;
+#endif
+	}
 private:
-#if COUNT_MEMORY
+#if TRACK_MEMORY
 	static size_t CurrentUsedMemory;
 	static size_t MaxUsedMemory;
 	static unsigned GetNextId();
 	static unsigned NextId;
+	static std::mutex MemoryLock;
 
 	struct AllocationInfo
 	{
@@ -75,14 +97,15 @@ private:
 #endif
 };
 
-#if COUNT_MEMORY
+#if TRACK_MEMORY
 size_t AllocatorImpl::CurrentUsedMemory = 0;
 size_t AllocatorImpl::MaxUsedMemory = 0;
+std::mutex AllocatorImpl::MemoryLock;
 unsigned AllocatorImpl::NextId = 0;
 std::unordered_map<void*, AllocatorImpl::AllocationInfo> AllocatorImpl::Allocations;
 #endif
 
-#if COUNT_MEMORY
+#if TRACK_MEMORY
 unsigned AllocatorImpl::GetNextId()
 {
 	return NextId++;
@@ -93,7 +116,8 @@ void* AllocatorImpl::Allocate(size_t size)
 {
 	auto ret = malloc(size);
 
-#if COUNT_MEMORY
+#if TRACK_MEMORY
+	std::lock_guard<std::mutex> lock(MemoryLock);
 	CurrentUsedMemory += size;
 	MaxUsedMemory = std::max(MaxUsedMemory, CurrentUsedMemory);
 	AllocationInfo info = { GetNextId(), size};
@@ -105,11 +129,14 @@ void* AllocatorImpl::Allocate(size_t size)
 
 void AllocatorImpl::Deallocate(void* ptr)
 {
-#if COUNT_MEMORY
-	auto it = Allocations.find(ptr);
-	assert(it != Allocations.end());
-	CurrentUsedMemory -= it->second.Size;
-	Allocations.erase(it);
+#if TRACK_MEMORY
+	{
+		std::lock_guard<std::mutex> lock(MemoryLock);
+		auto it = Allocations.find(ptr);
+		assert(it != Allocations.end());
+		CurrentUsedMemory -= it->second.Size;
+		Allocations.erase(it);
+	}
 #endif
 	free(ptr);
 }
@@ -118,7 +145,9 @@ void* AllocatorImpl::AllocateAligned(size_t size, size_t alignment)
 {
 	auto ret = _aligned_malloc(size, alignment);
 
-#if COUNT_MEMORY
+#if TRACK_MEMORY
+	std::lock_guard<std::mutex> lock(MemoryLock);
+
 	CurrentUsedMemory += size;
 	MaxUsedMemory = std::max(MaxUsedMemory, CurrentUsedMemory);
 	AllocationInfo info = { GetNextId(), size };
@@ -129,18 +158,22 @@ void* AllocatorImpl::AllocateAligned(size_t size, size_t alignment)
 
 void AllocatorImpl::DeallocateAligned(void* ptr)
 {
-#if COUNT_MEMORY
-	auto it = Allocations.find(ptr);
-	assert(it != Allocations.end());
-	CurrentUsedMemory -= it->second.Size;
-	Allocations.erase(it);
+#if TRACK_MEMORY
+	{
+		std::lock_guard<std::mutex> lock(MemoryLock);
+
+		auto it = Allocations.find(ptr);
+		assert(it != Allocations.end());
+		CurrentUsedMemory -= it->second.Size;
+		Allocations.erase(it);
+	}
 #endif
 	_aligned_free(ptr);
 }
 
 void AllocatorImpl::ReportMemory()
 {
-#if COUNT_MEMORY
+#if TRACK_MEMORY
 	SLOG(Sev_Info, Fac_Voxels, "Max Voxels used memory ", MaxUsedMemory, " bytes");
 	assert(Allocations.empty() && "Voxels leaks detected!");
 	for (auto it = Allocations.cbegin(); it != Allocations.cend(); ++it)
@@ -169,7 +202,7 @@ VolumeRenderingApplication::~VolumeRenderingApplication()
 	m_Scene.reset();
 	DeinitializeVoxels();
 
-#if COUNT_MEMORY
+#if TRACK_MEMORY
 	AllocatorImpl::ReportMemory();
 #endif
 }
@@ -206,10 +239,10 @@ bool VolumeRenderingApplication::Initiate(char* className, char* windowName, uns
 	bool result = true;
 	result &= DxGraphicsApplication::Initiate(className, windowName, width, height, false, winProc, true, msaaSamples);
 
-	SetProjection(XM_PIDIV2, float(GetWidth())/GetHeight(), 1.0f, 500.f);
+	SetProjection(XM_PIDIV2, float(GetWidth())/GetHeight(), 1.0f, 3000.f);
 
 	GetMainCamera()->SetLookAt(XMFLOAT3(0, 20, 0)
-							 , XMFLOAT3(0, 20, 1)
+							 , XMFLOAT3(0, 100, 1)
 							 , XMFLOAT3(0, 1, 0));
 
 	DxRenderer* renderer = static_cast<DxRenderer*>(GetRenderer());
@@ -403,6 +436,40 @@ void VolumeRenderingApplication::KeyDown(unsigned int key)
 		m_MaterialEditSize = 40;
 		break;
 
+	case VK_F9:
+		{
+			SLLOG(Sev_Info, Fac_Rendering, "Maximum memory use: ", AllocatorImpl::GetMaxMemoryUse());
+			SLLOG(Sev_Info, Fac_Rendering, "Current memory use: ", AllocatorImpl::GetCurrentMemoryUse());
+
+			ID3D11Debug* d3dDebug = nullptr;
+			m_Renderer->GetDevice()->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3dDebug));
+			if (d3dDebug)
+			{
+				d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+				d3dDebug->Release();
+			}
+
+			#ifdef _CRTDBG_MAP_ALLOC
+			static std::unique_ptr<_CrtMemState> lastState;
+			std::unique_ptr<_CrtMemState> currentState(new _CrtMemState);
+			_CrtMemCheckpoint(currentState.get());
+			OutputDebugString("Current memory snapshot: \n");
+			_CrtMemDumpStatistics(currentState.get());
+			if (lastState)
+			{
+				std::unique_ptr<_CrtMemState> diff(new _CrtMemState);
+				_CrtMemDifference(diff.get(), lastState.get(), currentState.get());
+				OutputDebugString("Memory diff snapshot: \n");
+				_CrtMemDumpStatistics(diff.get());
+			}
+			std::swap(lastState, currentState);
+			#endif
+		}
+		break;
+	case VK_F11:
+		m_Scene->DestroySurface();
+		break;
+
 	default:
 		break;
 	}
@@ -494,6 +561,7 @@ void VolumeRenderingApplication::ModifyGrid(int mouseX, int mouseY)
 void VolumeRenderingApplication::RecalculateGrid(const Voxels::float3pair* modified)
 {
 	m_Scene->RecalculateGrid(modified);
+
 	auto result = modified ? m_DrawRoutine->UpdateGrid() : m_DrawRoutine->ReloadGrid();
 
 	if(!result)
